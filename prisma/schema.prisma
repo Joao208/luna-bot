@@ -19,15 +19,15 @@ model Message {
   ServerId  String
 }
 
-model MessageComponents {
-  id        Int                     @id @default(autoincrement())
-  CustomId  String                  @db.VarChar(255)
-  label     String                  @db.VarChar(255)
-  style     MessageComponents_style
-  emoji     String?                 @db.VarChar(255)
+model MessageComponent {
+  id        Int                    @id @default(autoincrement())
+  CustomId  String                 @db.VarChar(255)
+  label     String                 @db.VarChar(255)
+  style     MessageComponent_style
+  emoji     String?                @db.VarChar(255)
   disabled  Boolean?
-  CreatedAt DateTime?               @default(now()) @db.DateTime(0)
-  UpdatedAt DateTime?               @default(now()) @db.DateTime(0)
+  CreatedAt DateTime?              @default(now()) @db.DateTime(0)
+  UpdatedAt DateTime?              @default(now()) @db.DateTime(0)
   MessageId Int
 }
 
@@ -48,7 +48,7 @@ model Server {
   OwnerId   String
 }
 
-enum MessageComponents_style {
+enum MessageComponent_style {
   Primary
   Secondary
   Success
