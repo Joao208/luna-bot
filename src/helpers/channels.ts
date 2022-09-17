@@ -22,8 +22,7 @@ class Channels implements IChannels {
 
   async setChannel(interaction: IVoiceConnectionObject) {
     this.channels[interaction.guildId as string] = joinVoiceChannel({
-      // @ts-ignore
-      channelId: interaction.voiceChannelId,
+      channelId: interaction.voiceChannelId as string,
       guildId: interaction.guildId as string,
       adapterCreator:
         interaction.voiceAdapterCreator as InternalDiscordGatewayAdapterCreator,

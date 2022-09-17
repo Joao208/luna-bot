@@ -9,6 +9,7 @@ import {
 import {
   ChannelType,
   ChatInputCommandInteraction,
+  GuildMember,
   InternalDiscordGatewayAdapterCreator,
 } from 'discord.js'
 import { getBasicInfo, videoInfo } from 'ytdl-core'
@@ -42,8 +43,9 @@ class PlayInteraction implements IPlayInteraction {
   async execute(interaction: ChatInputCommandInteraction): Promise<void> {
     const voiceConnectionObject = {} as IVoiceConnectionObject
 
-    // @ts-ignore
-    const voiceChannelId = interaction.member?.voice.channelId as string
+    const member = interaction.member as GuildMember
+
+    const voiceChannelId = member?.voice.channelId as string
     const serverId = interaction.guildId as string
     const voiceAdapterCreator = interaction.guild?.voiceAdapterCreator
 
