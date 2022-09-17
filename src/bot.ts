@@ -14,6 +14,7 @@ import { bold } from '@discordjs/builders'
 
 import loggerProvider from '@src/providers/loggerProvider'
 import { IInteraction } from '@src/interactions/IInteraction'
+import { OwnerRepository, ServerRepository } from '@src/repositories'
 
 class Bot {
   rest: REST
@@ -151,10 +152,25 @@ class Bot {
 
       messageToOwner += 'As I said on the server, it was nice to meet you!\n\n'
 
-      const sendMessageToChannel = channel?.send(messageToChannel)
-      const sendMessageToOwner = owner?.send(messageToOwner)
+      const sendMessageToChannelPromise = channel?.send(messageToChannel)
+      const sendMessageToOwnerPromise = owner?.send(messageToOwner)
 
-      await Promise.all([sendMessageToChannel, sendMessageToOwner])
+      const createServerPromisePromise = new ServerRepository().create({
+        GuildId: guild.id,
+        OwnerId: owner.id,
+      })
+
+      const createOwnerPromise = new OwnerRepository().create({
+        DiscordId: guild.ownerId,
+        username: owner.username,
+      })
+
+      await Promise.all([
+        sendMessageToChannelPromise,
+        sendMessageToOwnerPromise,
+        createServerPromisePromise,
+        createOwnerPromise,
+      ])
     })
 
     this.client.on('interactionCreate', async (interaction) => {
@@ -171,14 +187,17 @@ class Bot {
         }
 
         if (interaction.isRepliable()) {
-          interaction.reply('Something went wrong.')
+          interaction.reply({
+            content: 'Something went wrong.',
+            ephemeral: true,
+          })
         }
       }
     })
 
     this.client.login(process.env.DISCORD_TOKEN as string).then(() => {
       return this.client.user?.setPresence({
-        activities: [{ name: 'Playing | Help?', type: ActivityType.Playing }],
+        activities: [{ name: 'Help?', type: ActivityType.Playing }],
         status: 'online',
       })
     })

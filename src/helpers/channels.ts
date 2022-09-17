@@ -32,7 +32,7 @@ class Channels implements IChannels {
   }
 
   removeChannel(serverId: string) {
-    this.channels[serverId].destroy()
+    this.channels[serverId]?.destroy()
 
     delete this.channels[serverId]
   }

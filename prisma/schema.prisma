@@ -8,22 +8,19 @@ datasource db {
 }
 
 model Message {
-  id                Int                 @id @default(autoincrement())
-  ServerId          Server              @relation(fields: [serverId], references: [id])
-  ChannelId         Int
-  name              String              @unique(map: "name") @db.VarChar(255)
-  text              String              @db.VarChar(255)
-  type              Message_type
-  active            Boolean?            @default(true)
-  CreatedAt         DateTime?           @default(now()) @db.DateTime(0)
-  UpdatedAt         DateTime?           @default(now()) @db.DateTime(0)
-  serverId          Int
-  MessageComponents MessageComponents[]
+  id        Int          @id @default(autoincrement())
+  ChannelId String
+  name      String       @unique(map: "name") @db.VarChar(255)
+  text      String       @db.VarChar(255)
+  type      Message_type
+  active    Boolean?     @default(true)
+  CreatedAt DateTime?    @default(now()) @db.DateTime(0)
+  UpdatedAt DateTime?    @default(now()) @db.DateTime(0)
+  ServerId  String
 }
 
 model MessageComponents {
   id        Int                     @id @default(autoincrement())
-  MessageId Message                 @relation(fields: [messageId], references: [id])
   CustomId  String                  @db.VarChar(255)
   label     String                  @db.VarChar(255)
   style     MessageComponents_style
@@ -31,7 +28,7 @@ model MessageComponents {
   disabled  Boolean?
   CreatedAt DateTime?               @default(now()) @db.DateTime(0)
   UpdatedAt DateTime?               @default(now()) @db.DateTime(0)
-  messageId Int
+  MessageId Int
 }
 
 model Owner {
@@ -41,17 +38,14 @@ model Owner {
   username  String?   @unique(map: "username") @db.VarChar(255)
   CreatedAt DateTime? @default(now()) @db.DateTime(0)
   UpdatedAt DateTime? @default(now()) @db.DateTime(0)
-  Server    Server[]
 }
 
 model Server {
   id        Int       @id @default(autoincrement())
-  GuildId   Int       @unique(map: "GuildId")
-  OwnerId   Owner     @relation(fields: [ownerId], references: [id])
+  GuildId   String    @unique(map: "GuildId")
   CreatedAt DateTime? @default(now()) @db.DateTime(0)
   UpdatedAt DateTime? @default(now()) @db.DateTime(0)
-  ownerId   Int
-  Message   Message[]
+  OwnerId   String
 }
 
 enum MessageComponents_style {

@@ -32,9 +32,9 @@ export class LoginUseCase implements ILoginUseCase {
     const body = new URLSearchParams({
       client_id: process.env.DISCORD_CLIENT_ID as string,
       client_secret: process.env.DISCORD_CLIENT_SECRET as string,
+      redirect_uri: process.env.APP_URL as string,
       code,
       grant_type: 'authorization_code',
-      redirect_uri: 'http://localhost:3000',
       scope: 'identify',
     }).toString()
 
