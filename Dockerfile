@@ -10,6 +10,8 @@ RUN npm i
 
 COPY . ./
 
+RUN npx prisma generate
+
 RUN npm run build
 
 FROM node:16-bullseye as ts-remover
