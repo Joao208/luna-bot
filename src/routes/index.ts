@@ -22,6 +22,11 @@ export class Routes {
       ).handle(req, res)
     })
 
+    // TODO refact
+    router.get('/health', async (_req, res) => {
+      res.status(200).send('OK')
+    })
+
     this.app.use(router)
   }
 

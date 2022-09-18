@@ -1,8 +1,12 @@
 name: luna-bot
-type: Backend Service
+type: Load Balanced Web Service
+
+http:
+  path: '/'
+  healthcheck: '/health'
 
 image:
-  location: ./Dockerfile
+  build: ./Dockerfile
   port: 5003
 
 logging:
@@ -14,12 +18,16 @@ logging:
     log_key: log
 
 environments:
-  test:
+  production:
     count: 1
     cpu: 256
     memory: 512
-    deployment:
-      rolling: 'recreate'
+    variable:
+      NODE_ENV: production
     secrets:
-      DISCORD_TOKEN: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/DISCORD_TOKEN_LUNA
-      DISCORD_CLIENT_ID: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/DISCORD_CLIENT_ID_LUNA
+      DISCORD_TOKEN: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/DISCORD_TOKEN
+      DISCORD_CLIENT_ID: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/DISCORD_CLIENT_ID
+      CORALOGIX_KEY: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/CORALOGIX_KEY
+      DISCORD_CLIENT_SECRET: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/DISCORD_CLIENT_SECRET
+      DATABASE_URL: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/DATABASE_URL
+      APP_URL: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/APP_URL
