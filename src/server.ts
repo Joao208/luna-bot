@@ -10,10 +10,10 @@ bot.client.on('ready', () => {
     message: 'Bot is ready.',
   })
 
-  server.listen(3000, () => {
+  server.listen(5003, () => {
     loggerProvider.log({
       type: 'info',
-      message: 'Server is running on port 3000',
+      message: 'Server is running on port 5003',
     })
   })
 })
