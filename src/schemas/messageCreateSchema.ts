@@ -1,4 +1,4 @@
-import { MessageComponents_style, Message_type } from '@prisma/client'
+import { MessageComponent_style, Message_type } from '@prisma/client'
 import Joi from 'joi'
 
 const messageCreateSchema = Joi.object({
@@ -8,7 +8,7 @@ const messageCreateSchema = Joi.object({
       CustomId: Joi.string().required(),
       label: Joi.string().required(),
       style: Joi.string()
-        .valid(...Object.values(MessageComponents_style))
+        .valid(...Object.values(MessageComponent_style))
         .required(),
       emoji: Joi.string().required(),
       disabled: Joi.boolean().required(),

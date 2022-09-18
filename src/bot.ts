@@ -109,13 +109,6 @@ class Bot {
       })
     })
 
-    this.client.on('ready', () => {
-      loggerProvider.log({
-        type: 'info',
-        message: 'Bot is ready.',
-      })
-    })
-
     this.client.on('guildCreate', async (guild) => {
       loggerProvider.log({
         type: 'info',
@@ -186,7 +179,7 @@ class Bot {
           })
         }
 
-        if (interaction.isRepliable()) {
+        if (interaction.isRepliable() && !interaction.replied) {
           interaction.reply({
             content: 'Something went wrong.',
             ephemeral: true,
@@ -204,4 +197,4 @@ class Bot {
   }
 }
 
-new Bot()
+export default new Bot()

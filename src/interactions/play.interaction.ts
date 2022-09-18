@@ -65,33 +65,6 @@ class PlayInteraction implements IPlayInteraction {
 
     const musicInfo = await getBasicInfo(this.musicUrl as string)
 
-    if (
-      !this.musicQueue.isCurrentPlaying(serverId) &&
-      interaction.isRepliable()
-    ) {
-      interaction
-        .reply({
-          content: `Playing ${musicInfo.videoDetails.title}`,
-        })
-        .catch((err) =>
-          loggerProvider.log({
-            type: 'error',
-            message: err,
-          })
-        )
-    } else if (interaction.isRepliable()) {
-      interaction
-        .reply({
-          content: `Added ${musicInfo.videoDetails.title} to playlist`,
-        })
-        .catch((err) =>
-          loggerProvider.log({
-            type: 'error',
-            message: err,
-          })
-        )
-    }
-
     if (!voiceChannelId) {
       await this.handleUserWithoutVoiceChannel({
         interaction,
@@ -102,15 +75,42 @@ class PlayInteraction implements IPlayInteraction {
       })
     }
 
-    if (
-      currentChannel?.joinConfig.channelId !== voiceChannelId &&
-      voiceChannelId &&
-      currentChannel?.joinConfig.channelId
-    ) {
+    const userInChannel = !!voiceChannelId
+    const botInChannel = !!currentChannel?.joinConfig.channelId
+    const channelIsDifferent =
+      currentChannel?.joinConfig.channelId !== voiceChannelId
+
+    if (channelIsDifferent && userInChannel && botInChannel) {
       await this.handleUserInDifferentVoiceChannel({
         serverId,
         voiceConnectionObject,
       })
+    }
+
+    if (!interaction.isRepliable() || interaction.replied) return
+
+    if (!this.musicQueue.isCurrentPlaying(serverId)) {
+      interaction
+        .reply({
+          content: `Playing ${musicInfo.videoDetails.title}`,
+        })
+        .catch((err) =>
+          loggerProvider.log({
+            type: 'error',
+            message: err,
+          })
+        )
+    } else {
+      interaction
+        .reply({
+          content: `Added ${musicInfo.videoDetails.title} to playlist`,
+        })
+        .catch((err) =>
+          loggerProvider.log({
+            type: 'error',
+            message: err,
+          })
+        )
     }
 
     await this.getChannel(voiceConnectionObject)

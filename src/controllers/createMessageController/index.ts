@@ -6,7 +6,7 @@ export class CreateMessageController {
 
   async handle(req: Request, res: Response) {
     try {
-      const { ChannelId, components, message, name, type, ServerId, UserId } =
+      const { ChannelId, components, message, name, type, ServerId, OwnerId } =
         req.body
 
       await this.createMessageUseCase.handle({
@@ -16,7 +16,7 @@ export class CreateMessageController {
         name,
         ServerId,
         type,
-        UserId,
+        OwnerId,
       })
 
       return res.status(201).send()

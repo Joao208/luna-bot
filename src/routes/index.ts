@@ -1,25 +1,32 @@
 import { Application, Router } from 'express'
 import { CreateMessageUseCase, LoginUseCase } from '@src/useCases'
 import { LoginController } from '@src/controllers'
-import { FetchClientProvider } from '@src/providers'
+import { EncryptionProvider, FetchClientProvider } from '@src/providers'
 import { CreateMessageController } from '@src/controllers/createMessageController'
 import { RequestBody } from '@src/middlewares'
-import { messageCreateSchema } from '@src/schemas'
+import { loginSchema, messageCreateSchema } from '@src/schemas'
 import {
   MessageComponentRepository,
   MessageRepository,
-  ServerRepository,
 } from '@src/repositories'
 
 export class Routes {
-  constructor(app: Application, private requestBody: RequestBody) {
+  constructor(private app: Application, private requestBody: RequestBody) {}
+
+  public() {
     const router = Router()
 
-    router.get('/', (req, res) => {
+    router.get('/login', this.requestBody.handle(loginSchema), (req, res) => {
       return new LoginController(
-        new LoginUseCase(new FetchClientProvider())
+        new LoginUseCase(new FetchClientProvider(), new EncryptionProvider())
       ).handle(req, res)
     })
+
+    this.app.use(router)
+  }
+
+  private() {
+    const router = Router()
 
     router.post(
       '/message',
@@ -28,13 +35,12 @@ export class Routes {
         return new CreateMessageController(
           new CreateMessageUseCase(
             new MessageRepository(),
-            new MessageComponentRepository(),
-            new ServerRepository()
+            new MessageComponentRepository()
           )
         ).handle(req, res)
       }
     )
 
-    app.use(router)
+    this.app.use(router)
   }
 }

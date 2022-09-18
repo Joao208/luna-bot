@@ -4,19 +4,23 @@ import path from 'path'
 import { IEncryptionProvider } from '@src/providers/encryptionProvider/IEncryptionProvider'
 
 export class EncryptionProvider implements IEncryptionProvider {
-  encrypt(data: object): string {
-    const encryptionToken = fs.readFileSync(
-      path.join(__dirname, 'jwt', 'private.key')
+  encrypt(
+    data: object,
+    key = 'private.key',
+    config: { [key: string]: unknown }
+  ): string {
+    const encryptionKey = fs.readFileSync(
+      path.join(__dirname, '..', '..', 'jwt', key || 'private.key')
     )
 
-    return jwt.sign(data, encryptionToken)
+    return jwt.sign(data, encryptionKey, { algorithm: 'RS256', ...config })
   }
 
-  decrypt(data: string): JwtPayload {
-    const decryptionToken = fs.readFileSync(
-      path.join(__dirname, 'jwt', 'public.pem')
+  decrypt(token: string, key = 'public.pem'): JwtPayload {
+    const decryptionKey = fs.readFileSync(
+      path.join(__dirname, '..', '..', 'jwt', key || 'public.pem')
     )
 
-    return jwt.verify(data, decryptionToken) as JwtPayload
+    return jwt.verify(token, decryptionKey) as JwtPayload
   }
 }

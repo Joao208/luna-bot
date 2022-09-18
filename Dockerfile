@@ -17,9 +17,15 @@ FROM node:16-bullseye as ts-remover
 WORKDIR /usr/app
 
 COPY --from=ts-compiler /usr/app/package*.json ./
+COPY --from=ts-compiler /usr/app/prisma ./
 COPY --from=ts-compiler /usr/app/dist ./
 
+# Run when test local
+COPY --from=ts-compiler /usr/app/.env ./
+
 RUN npm install --omit=dev
+
+RUN npx prisma generate
 
 FROM node:16-bullseye
 

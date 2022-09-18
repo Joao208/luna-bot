@@ -1,5 +1,5 @@
-import { MessageComponents } from '@prisma/client'
+import { MessageComponent } from '@prisma/client'
 
 export interface IMessageComponentRepository {
-  create(messageComponents: MessageComponents[]): Promise<void>
+  create(messageComponents: MessageComponent[]): Promise<void>
 }

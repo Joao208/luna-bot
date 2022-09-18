@@ -1,9 +1,9 @@
-import { MessageComponents_style, Message_type } from '@prisma/client'
+import { MessageComponent_style, Message_type } from '@prisma/client'
 
 interface Component {
   CustomId: string
   label: string
-  style: MessageComponents_style
+  style: MessageComponent_style
   emoji: string
   disabled: boolean
 }
@@ -15,7 +15,7 @@ export interface CreateMessageProps {
   name: string
   type: Message_type
   ServerId: string
-  UserId: string
+  OwnerId: string
 }
 
 export interface ICreateMessageUseCase {

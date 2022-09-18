@@ -4,13 +4,20 @@ import { ILoginUseCase } from '@src/useCases/loginUseCase/ILoginUseCase'
 export class LoginController {
   constructor(private loginUseCase: ILoginUseCase) {}
 
-  async handle(req: Request, res: Response): Promise<Response> {
+  async handle(req: Request, res: Response): Promise<void> {
     const { code } = req.query as {
       code: string
     }
 
-    const response = await this.loginUseCase.handle(code)
+    const { refreshToken, token } = await this.loginUseCase.handle(code)
 
-    return res.status(200).json(response)
+    res.cookie('jwt', refreshToken, {
+      httpOnly: true,
+      sameSite: 'none',
+      secure: true,
+      maxAge: 24 * 60 * 60 * 1000,
+    })
+
+    return res.status(301).redirect(`${process.env.APP_URL}/?token=${token}`)
   }
 }

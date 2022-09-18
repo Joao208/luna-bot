@@ -1,3 +1,3 @@
 export interface ILoginUseCase {
-  handle(code: string): Promise<string>
+  handle(code: string): Promise<{ token: string; refreshToken: string }>
 }

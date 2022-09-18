@@ -1,3 +1,4 @@
+import { IEncryptionProvider } from '@src/providers/encryptionProvider/IEncryptionProvider'
 import { IFetchClientProvider } from '@src/providers/fetchClientProvider/IFetchClientProvider'
 import { ILoginUseCase } from '@src/useCases/loginUseCase/ILoginUseCase'
 
@@ -22,11 +23,12 @@ interface GetUserInfoResponse {
 }
 
 export class LoginUseCase implements ILoginUseCase {
-  constructor(private fetchClientProvider: IFetchClientProvider) {}
+  constructor(
+    private fetchClientProvider: IFetchClientProvider,
+    private encryptionProvider: IEncryptionProvider
+  ) {}
 
   async handle(code: string) {
-    if (!code) return 'Missing code'
-
     this.fetchClientProvider.create('https://discord.com/api')
 
     const body = new URLSearchParams({
@@ -38,7 +40,7 @@ export class LoginUseCase implements ILoginUseCase {
       scope: 'identify',
     }).toString()
 
-    const getTokensPromise = await this.fetchClientProvider.post({
+    const getTokensResponse = await this.fetchClientProvider.post({
       url: '/oauth2/token',
       body,
       config: {
@@ -49,7 +51,7 @@ export class LoginUseCase implements ILoginUseCase {
     })
 
     const { access_token, token_type } =
-      getTokensPromise as unknown as CreateTokenResponse
+      getTokensResponse as unknown as CreateTokenResponse
 
     const response = await this.fetchClientProvider.get({
       url: '/users/@me',
@@ -60,8 +62,20 @@ export class LoginUseCase implements ILoginUseCase {
       },
     })
 
-    const { username } = response as unknown as GetUserInfoResponse
+    const { id } = response as unknown as GetUserInfoResponse
 
-    return `Seja bem vindo ${username}`
+    const token = this.encryptionProvider.encrypt({ OwnerId: id }, null, {
+      expiresIn: '10m',
+    })
+
+    const refreshToken = this.encryptionProvider.encrypt(
+      { OwnerId: id },
+      null,
+      {
+        expiresIn: '1d',
+      }
+    )
+
+    return { token, refreshToken }
   }
 }

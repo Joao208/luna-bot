@@ -1,7 +1,10 @@
 import express, { Application } from 'express'
 import cors from 'cors'
+import cookieparser from 'cookie-parser'
 import { Routes } from '@src/routes'
-import { RequestBody, RequestLogger } from '@src/middlewares'
+import { RequestAuth, RequestBody, RequestLogger } from '@src/middlewares'
+import { EncryptionProvider } from '@src/providers'
+import { ServerRepository } from '@src/repositories'
 
 class App {
   app: Application
@@ -9,19 +12,34 @@ class App {
   constructor() {
     this.app = express()
     this.loadMiddleware()
-    this.loadRoutes()
+    this.loadPublicRoutes()
+    this.loadAuthMiddleware()
+    this.loadPrivateRoutes()
   }
 
   private loadMiddleware() {
     this.app.use(express.json())
     this.app.use(cors({ origin: '*' }))
     this.app.use(express.urlencoded({ extended: true }))
-    // this.app.use(new RequestAuth(new EncryptionProvider()).handle)
+    this.app.use(cookieparser())
     this.app.use(new RequestLogger().handle)
   }
 
-  private loadRoutes() {
-    new Routes(this.app, new RequestBody())
+  private loadAuthMiddleware() {
+    this.app.use((req, res, next) => {
+      return new RequestAuth(
+        new EncryptionProvider(),
+        new ServerRepository()
+      ).handle(req, res, next)
+    })
+  }
+
+  private loadPublicRoutes() {
+    new Routes(this.app, new RequestBody()).public()
+  }
+
+  private loadPrivateRoutes() {
+    new Routes(this.app, new RequestBody()).private()
   }
 
   getServer() {
