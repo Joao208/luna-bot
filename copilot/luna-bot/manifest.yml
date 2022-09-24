@@ -9,11 +9,29 @@ image:
   build: ./Dockerfile
   port: 5003
 
+sidecars:
+  datadog:
+    port: 8126
+    image: public.ecr.aws/c3o7q7c0/datadog-agent:7.35.2
+    variables:
+      DD_SERVICE: luna-bot
+      DD_ENV: ${COPILOT_ENVIRONMENT_NAME}
+      ECS_FARGATE: true
+      DD_APM_ENABLED: true
+      DD_APM_NON_LOCAL_TRAFFIC: true
+      DD_DOGSTATSD_NON_LOCAL_TRAFFIC: true
+    secrets:
+      DD_API_KEY: /copilot/luna-bot/${COPILOT_ENVIRONMENT_NAME}/secrets/DD_API_KEY
+
 environments:
   production:
-    count: 1
-    cpu: 256
-    memory: 512
+    count:
+      range:
+        min: 1
+        max: 3
+        spot_from: 1
+    cpu: 512
+    memory: 1024
     variable:
       NODE_ENV: production
     secrets:

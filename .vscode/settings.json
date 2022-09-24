@@ -3,6 +3,7 @@
     "cookieparser",
     "coralogix",
     "Coralogix",
+    "datadog",
     "discordjs",
     "middlewares",
     "refact",
