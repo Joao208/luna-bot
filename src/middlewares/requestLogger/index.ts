@@ -5,6 +5,8 @@ export class RequestLogger {
   handle(req: Request, _res: Response, next: NextFunction) {
     const { body, query, params, method, url } = req
 
+    if (url === '/health') return next()
+
     loggerProvider.log({
       type: 'info',
       message: `Request received: ${method} ${url}, body: ${JSON.stringify({

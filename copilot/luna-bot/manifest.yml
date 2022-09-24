@@ -3,7 +3,11 @@ type: Load Balanced Web Service
 
 http:
   path: '/'
-  healthcheck: '/health'
+  healthcheck:
+    path: '/health'
+    success_codes: '200, 301'
+    interval: 300s
+    timeout: 30s
 
 image:
   build: ./Dockerfile
@@ -47,7 +51,6 @@ environments:
     secrets:
       DISCORD_TOKEN: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/DISCORD_TOKEN
       DISCORD_CLIENT_ID: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/DISCORD_CLIENT_ID
-      CORALOGIX_KEY: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/CORALOGIX_KEY
       DISCORD_CLIENT_SECRET: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/DISCORD_CLIENT_SECRET
       DATABASE_URL: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/DATABASE_URL
       APP_URL: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/APP_URL
