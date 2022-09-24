@@ -14,7 +14,7 @@ sidecars:
     port: 8126
     image: public.ecr.aws/c3o7q7c0/datadog-agent:7.35.2
     variables:
-      DD_SERVICE: luna-bot
+      DD_SERVICE: ${COPILOT_APPLICATION_NAME}
       DD_ENV: ${COPILOT_ENVIRONMENT_NAME}
       ECS_FARGATE: true
       DD_APM_ENABLED: true
