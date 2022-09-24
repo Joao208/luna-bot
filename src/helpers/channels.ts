@@ -1,6 +1,6 @@
 import { joinVoiceChannel, VoiceConnection } from '@discordjs/voice'
 import { InternalDiscordGatewayAdapterCreator } from 'discord.js'
-import { IVoiceConnectionObject } from 'src/interactions/play.interaction'
+import { IVoiceConnectionObject } from 'src/interactionCommands/play.interaction'
 
 export interface IChannels {
   channels: { [key: string]: VoiceConnection }

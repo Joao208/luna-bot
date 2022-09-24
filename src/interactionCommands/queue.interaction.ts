@@ -4,9 +4,9 @@ import {
   SelectMenuBuilder,
 } from 'discord.js'
 import MusicQueue, { IMusicQueue } from '@src/helpers/musicQueue'
-import { IInteraction } from '@src/interactions/IInteraction'
-import { Metadata } from '@src/interactions/play.interaction'
+import { Metadata } from '@src/interactionCommands/play.interaction'
 import loggerProvider from '@src/providers/loggerProvider'
+import { IInteraction } from '@src/types/IInteraction'
 
 export type IQueueInteraction = IInteraction
 
@@ -42,7 +42,7 @@ class QueueInteraction implements IQueueInteraction {
 
     const row = new ActionRowBuilder().addComponents(
       new SelectMenuBuilder()
-        .setCustomId('music-queue')
+        .setCustomId('queue')
         .setPlaceholder('Nothing selected')
         .addOptions(queueMessage)
     )

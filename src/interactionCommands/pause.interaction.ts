@@ -1,11 +1,11 @@
 import { ChatInputCommandInteraction } from 'discord.js'
 import Players, { IPlayers } from '@src/helpers/players'
-import { IInteraction } from '@src/interactions/IInteraction'
 import loggerProvider from '@src/providers/loggerProvider'
+import { IInteraction } from '@src/types/IInteraction'
 
-export type IUnPauseInteraction = IInteraction
+export type IPauseInteraction = IInteraction
 
-class UnPauseInteraction implements IUnPauseInteraction {
+class PauseInteraction implements IPauseInteraction {
   constructor(private players: IPlayers) {}
 
   async execute(interaction: ChatInputCommandInteraction): Promise<void> {
@@ -26,9 +26,9 @@ class UnPauseInteraction implements IUnPauseInteraction {
       return
     }
 
-    this.players.getPlayer(serverId)?.unpause()
+    this.players.getPlayer(serverId)?.pause()
 
-    await interaction.reply('Music unpaused').catch((error) =>
+    await interaction.reply('Music paused').catch((error) =>
       loggerProvider.log({
         type: 'error',
         message: error.message,
@@ -39,4 +39,4 @@ class UnPauseInteraction implements IUnPauseInteraction {
   }
 }
 
-export default new UnPauseInteraction(Players)
+export default new PauseInteraction(Players)

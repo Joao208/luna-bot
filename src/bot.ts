@@ -13,15 +13,16 @@ import glob from 'glob'
 import { bold } from '@discordjs/builders'
 
 import loggerProvider from '@src/providers/loggerProvider'
-import { IInteraction } from '@src/interactions/IInteraction'
 import { OwnerRepository, ServerRepository } from '@src/repositories'
+import { GetInteractionInfo } from '@src/helpers/getInteractionInfo'
+import { IInteraction } from '@src/types/IInteraction'
 
 class Bot {
   rest: REST
   commands: CommandInteraction[]
   client: Client
   interactions: {
-    [key: string]: IInteraction
+    [key: string]: { [key: string]: IInteraction }
   }
 
   constructor() {
@@ -40,14 +41,18 @@ class Bot {
     })
 
     this.commands = []
-    this.interactions = {}
+    this.interactions = {
+      command: {},
+      select: {},
+    }
 
     this.getCommands()
-    this.getInteractions()
+    this.getCommandInteractions()
+    this.getSelectInteraction()
   }
 
-  private getInteractions() {
-    glob('src/interactions/**/*.interaction.*', (_err, files) => {
+  private getSelectInteraction() {
+    glob('src/interactionSelects/**/*.interaction.*', (_err, files) => {
       files.forEach((filePath) => {
         const interactionName = filePath.split('/')[2].split('.')[0]
 
@@ -55,7 +60,27 @@ class Bot {
 
         if (!this.interactions) this.interactions = {}
 
-        this.interactions[interactionName] =
+        this.interactions['select'][interactionName] =
+          interaction as unknown as IInteraction
+
+        loggerProvider.log({
+          type: 'info',
+          message: `Interaction ${interactionName} loaded.`,
+        })
+      })
+    })
+  }
+
+  private getCommandInteractions() {
+    glob('src/interactionCommands/**/*.interaction.*', (_err, files) => {
+      files.forEach((filePath) => {
+        const interactionName = filePath.split('/')[2].split('.')[0]
+
+        const interaction = require(`../${filePath}`).default
+
+        if (!this.interactions) this.interactions = {}
+
+        this.interactions['command'][interactionName] =
           interaction as unknown as IInteraction
 
         loggerProvider.log({
@@ -168,13 +193,22 @@ class Bot {
 
     this.client.on('interactionCreate', async (interaction) => {
       try {
-        if (interaction.isCommand()) {
-          const currentInteraction = this.interactions[interaction.commandName]
+        const getNameInteraction = new GetInteractionInfo(interaction)
 
-          if (!currentInteraction) return
+        const name = getNameInteraction.getNameInteraction()
+        const type = getNameInteraction.getTypeInteraction()
 
-          await currentInteraction.execute(interaction)
+        if (!name || !type) {
+          interaction.channel?.send({ content: 'Invalid interaction' })
+
+          return
         }
+
+        const currentInteraction = this.interactions[type][name]
+
+        if (!currentInteraction) return
+
+        await currentInteraction.execute(interaction)
       } catch (error) {
         if (error instanceof Error) {
           loggerProvider.log({

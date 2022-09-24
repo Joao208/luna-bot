@@ -1,5 +1,5 @@
+import { IInteraction } from '@src/types/IInteraction'
 import { ChatInputCommandInteraction } from 'discord.js'
-import { IInteraction } from '@src/interactions/IInteraction'
 
 export type IHelpInteraction = IInteraction
 

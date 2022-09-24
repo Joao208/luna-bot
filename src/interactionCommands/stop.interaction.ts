@@ -2,8 +2,8 @@ import { ChatInputCommandInteraction } from 'discord.js'
 import Channels, { IChannels } from '@src/helpers/channels'
 import MusicQueue, { IMusicQueue } from '@src/helpers/musicQueue'
 import Players, { IPlayers } from '@src/helpers/players'
-import { IInteraction } from '@src/interactions/IInteraction'
 import loggerProvider from '@src/providers/loggerProvider'
+import { IInteraction } from '@src/types/IInteraction'
 
 export type IStopInteraction = IInteraction
 

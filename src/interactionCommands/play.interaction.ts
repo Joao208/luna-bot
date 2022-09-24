@@ -18,8 +18,8 @@ import youtube from 'youtube-sr'
 import Channels, { IChannels } from '@src/helpers/channels'
 import MusicQueue, { IMusicQueue } from '@src/helpers/musicQueue'
 import Players, { IPlayers } from '@src/helpers/players'
-import { IInteraction } from '@src/interactions/IInteraction'
 import loggerProvider from '@src/providers/loggerProvider'
+import { IInteraction } from '@src/types/IInteraction'
 
 export type IPlayInteraction = IInteraction
 
@@ -45,6 +45,10 @@ class PlayInteraction implements IPlayInteraction {
   ) {}
 
   async execute(interaction: ChatInputCommandInteraction): Promise<void> {
+    if (!interaction.isRepliable() || interaction.replied) return
+
+    await interaction.reply('🔍 Searching...')
+
     const voiceConnectionObject = {} as IVoiceConnectionObject
 
     const member = interaction.member as GuildMember
@@ -91,32 +95,6 @@ class PlayInteraction implements IPlayInteraction {
       })
     }
 
-    if (!interaction.isRepliable() || interaction.replied) return
-
-    if (!this.musicQueue.isCurrentPlaying(serverId)) {
-      await interaction
-        .reply({
-          content: `Playing ${musicInfo.videoDetails.title}`,
-        })
-        .catch((error) =>
-          loggerProvider.log({
-            type: 'error',
-            message: error.message,
-          })
-        )
-    } else {
-      await interaction
-        .reply({
-          content: `Added ${musicInfo.videoDetails.title} to playlist`,
-        })
-        .catch((error) =>
-          loggerProvider.log({
-            type: 'error',
-            message: error.message,
-          })
-        )
-    }
-
     await this.getChannel(voiceConnectionObject)
 
     const musicStream = await ytdl(this.musicUrl as string, {
@@ -134,6 +112,17 @@ class PlayInteraction implements IPlayInteraction {
     if (this.musicQueue.isCurrentPlaying(serverId)) {
       this.musicQueue.addSong(serverId, audioResource)
 
+      await interaction
+        .editReply({
+          content: `Added ${musicInfo.videoDetails.title} to playlist`,
+        })
+        .catch((error) =>
+          loggerProvider.log({
+            type: 'error',
+            message: error.message,
+          })
+        )
+
       return
     }
 
@@ -144,6 +133,17 @@ class PlayInteraction implements IPlayInteraction {
     this.channel?.subscribe(player)
 
     player.play(audioResource)
+
+    await interaction
+      .editReply({
+        content: `Playing ${musicInfo.videoDetails.title}`,
+      })
+      .catch((error) =>
+        loggerProvider.log({
+          type: 'error',
+          message: error.message,
+        })
+      )
 
     player.on(AudioPlayerStatus.Idle, () => {
       this.musicQueue.removeSong(serverId)
@@ -271,7 +271,7 @@ class PlayInteraction implements IPlayInteraction {
         firstVoiceChannel?.guild.voiceAdapterCreator
 
       if (!currentChannel) {
-        await interaction.reply({
+        await interaction.editReply({
           content: `Playing ${musicInfo.videoDetails.title} on ${firstVoiceChannel?.name}. I'm waiting for you!`,
         })
 
@@ -279,14 +279,14 @@ class PlayInteraction implements IPlayInteraction {
       }
 
       if (!this.musicQueue.isCurrentPlaying(serverId)) {
-        await interaction.reply({
+        await interaction.editReply({
           content: `Playing ${musicInfo.videoDetails.title} on ${firstVoiceChannel?.name}. I'm waiting for you!`,
         })
 
         return
       }
 
-      await interaction.reply({
+      await interaction.editReply({
         content:
           "Come with me to the voice channel. We'\re listening music over there!",
       })
@@ -299,14 +299,14 @@ class PlayInteraction implements IPlayInteraction {
         return channel.id === currentChannel?.joinConfig.channelId
       })
 
-      await interaction.reply({
+      await interaction.editReply({
         content: `Come with me to the voice channel ${voiceChannelFound?.name}. We're listening music over there! 🎶`,
       })
 
       return
     }
 
-    await interaction.reply({
+    await interaction.editReply({
       content: 'What channel are we go? You can enter it and then call me, ok?',
     })
 
