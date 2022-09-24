@@ -5,7 +5,7 @@ http:
   path: '/'
   healthcheck:
     path: '/health'
-    success_codes: '200, 301'
+    success_codes: '200,301'
     interval: 300s
     timeout: 30s
 
