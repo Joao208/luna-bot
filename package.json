@@ -24,7 +24,6 @@
     "@vitest/coverage-c8": "0.23.4",
     "eslint": "8.23.0",
     "eslint-plugin-react": "7.31.8",
-    "husky": "8.0.1",
     "prettier": "2.7.1",
     "ts-node-dev": "2.0.0",
     "tsconfig-paths": "4.1.0",
@@ -32,6 +31,7 @@
     "vitest": "0.23.2"
   },
   "dependencies": {
+    "husky": "8.0.1",
     "@discordjs/rest": "1.1.0",
     "@discordjs/voice": "0.11.0",
     "@prisma/client": "4.3.1",
