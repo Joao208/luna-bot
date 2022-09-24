@@ -4,7 +4,7 @@
   "main": "src/index.js",
   "license": "MIT",
   "scripts": {
-    "start:dev": "ts-node-dev -r tsconfig-paths/register --inspect --transpile-only --respawn --ignore-watch node_modules src/server.ts",
+    "start:dev": "ts-node-dev -r tsconfig-paths/register --inspect --transpile-only --exit-child --respawn --ignore-watch node_modules src/server.ts",
     "start": "node src/server.js",
     "build": "npm run clear && tsc --project tsconfig.json && tscpaths -p tsconfig.json -s ./src -o ./dist/src",
     "clear": "rm -rf dist",

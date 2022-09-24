@@ -23,6 +23,10 @@ import loggerProvider from '@src/providers/loggerProvider'
 
 export type IPlayInteraction = IInteraction
 
+export interface Metadata {
+  title: string
+}
+
 export interface IVoiceConnectionObject {
   voiceChannelId: string | undefined
   guildId: string | undefined
