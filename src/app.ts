@@ -1,3 +1,4 @@
+import 'dd-trace/init'
 import express, { Application } from 'express'
 import cors from 'cors'
 import cookieparser from 'cookie-parser'
