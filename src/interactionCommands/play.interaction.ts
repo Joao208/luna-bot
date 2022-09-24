@@ -161,25 +161,23 @@ class PlayInteraction implements IPlayInteraction {
   }
 
   private async addPlaylistToQueue(serverId: string) {
-    Promise.all(
-      this.musicsPlaylist.map(async (video) => {
-        const uniqueMusicInfo = await getBasicInfo(video.url as string)
+    this.musicsPlaylist.forEach(async (video) => {
+      const uniqueMusicInfo = await getBasicInfo(video.url as string)
 
-        const uniqueMusicStream = await ytdl(video.url as string, {
-          highWaterMark: 1 << 25,
-        })
-
-        const uniqueMusicResource = createAudioResource(uniqueMusicStream, {
-          metadata: {
-            title: uniqueMusicInfo.videoDetails.title,
-            thumbnail: uniqueMusicInfo.videoDetails.thumbnails[0].url,
-          },
-          inputType: StreamType.Opus,
-        })
-
-        this.musicQueue.addSong(serverId, uniqueMusicResource)
+      const uniqueMusicStream = await ytdl(video.url as string, {
+        highWaterMark: 1 << 25,
       })
-    )
+
+      const uniqueMusicResource = createAudioResource(uniqueMusicStream, {
+        metadata: {
+          title: uniqueMusicInfo.videoDetails.title,
+          thumbnail: uniqueMusicInfo.videoDetails.thumbnails[0].url,
+        },
+        inputType: StreamType.Opus,
+      })
+
+      this.musicQueue.addSong(serverId, uniqueMusicResource)
+    })
   }
 
   private async handlePlaylist(urlOrTerm: string) {
