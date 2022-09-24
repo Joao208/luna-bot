@@ -169,7 +169,11 @@ class Bot {
     this.client.on('interactionCreate', async (interaction) => {
       try {
         if (interaction.isCommand()) {
-          this.interactions[interaction.commandName].execute(interaction)
+          const currentInteraction = this.interactions[interaction.commandName]
+
+          if (!currentInteraction) return
+
+          await currentInteraction.execute(interaction)
         }
       } catch (error) {
         if (error instanceof Error) {

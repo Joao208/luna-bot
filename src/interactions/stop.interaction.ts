@@ -3,6 +3,7 @@ import Channels, { IChannels } from '@src/helpers/channels'
 import MusicQueue, { IMusicQueue } from '@src/helpers/musicQueue'
 import Players, { IPlayers } from '@src/helpers/players'
 import { IInteraction } from '@src/interactions/IInteraction'
+import loggerProvider from '@src/providers/loggerProvider'
 
 export type IStopInteraction = IInteraction
 
@@ -14,11 +15,33 @@ class StopInteraction implements IStopInteraction {
   ) {}
 
   async execute(interaction: ChatInputCommandInteraction): Promise<void> {
+    if (!interaction.isRepliable() || interaction.replied) return
+
+    if (!this.channels.getChannel(interaction.guildId as string)) {
+      await interaction
+        .reply('I am not playing in this server')
+        .catch((error) =>
+          loggerProvider.log({
+            type: 'error',
+            message: error.message,
+          })
+        )
+
+      return
+    }
+
     this.channels.removeChannel(interaction.guildId as string)
     this.musicQueue.clearQueue(interaction.guildId as string)
     this.Players.removePlayer(interaction.guildId as string)
 
-    interaction.reply("Okay... I'm stopped the music. Until later!")
+    await interaction
+      .reply("Okay... I'm stopped the music. Until later!")
+      .catch((error) =>
+        loggerProvider.log({
+          type: 'error',
+          message: error.message,
+        })
+      )
 
     return
   }

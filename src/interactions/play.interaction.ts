@@ -18,8 +18,8 @@ import youtube from 'youtube-sr'
 import Channels, { IChannels } from '@src/helpers/channels'
 import MusicQueue, { IMusicQueue } from '@src/helpers/musicQueue'
 import Players, { IPlayers } from '@src/helpers/players'
-import loggerProvider from '@src/providers/loggerProvider'
 import { IInteraction } from '@src/interactions/IInteraction'
+import loggerProvider from '@src/providers/loggerProvider'
 
 export type IPlayInteraction = IInteraction
 
@@ -90,25 +90,25 @@ class PlayInteraction implements IPlayInteraction {
     if (!interaction.isRepliable() || interaction.replied) return
 
     if (!this.musicQueue.isCurrentPlaying(serverId)) {
-      interaction
+      await interaction
         .reply({
           content: `Playing ${musicInfo.videoDetails.title}`,
         })
-        .catch((err) =>
+        .catch((error) =>
           loggerProvider.log({
             type: 'error',
-            message: err,
+            message: error.message,
           })
         )
     } else {
-      interaction
+      await interaction
         .reply({
           content: `Added ${musicInfo.videoDetails.title} to playlist`,
         })
-        .catch((err) =>
+        .catch((error) =>
           loggerProvider.log({
             type: 'error',
-            message: err,
+            message: error.message,
           })
         )
     }
