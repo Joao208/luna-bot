@@ -9,6 +9,20 @@ image:
   build: ./Dockerfile
   port: 5003
 
+logging:
+  image: public.ecr.aws/c3o7q7c0/fluent-bit:2.25.0
+  destination:
+    Name: datadog
+    Host: http-intake.logs.datadoghq.com
+    TLS: on
+    dd_service: ${COPILOT_APPLICATION_NAME}
+    dd_source: ${COPILOT_ENVIRONMENT_NAME}
+    provider: ecs
+  enableMetadata: true
+  configFile: ./extra.conf
+  secretOptions:
+    apikey: /copilot/luna-bot/${COPILOT_ENVIRONMENT_NAME}/secrets/DD_API_KEY
+
 sidecars:
   datadog:
     port: 8126
@@ -17,8 +31,6 @@ sidecars:
       DD_SERVICE: ${COPILOT_APPLICATION_NAME}
       DD_ENV: ${COPILOT_ENVIRONMENT_NAME}
       ECS_FARGATE: true
-      DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL: true
-      DD_LOGS_ENABLED: true
       DD_APM_ENABLED: true
       DD_APM_NON_LOCAL_TRAFFIC: true
       DD_DOGSTATSD_NON_LOCAL_TRAFFIC: true
