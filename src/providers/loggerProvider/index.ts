@@ -10,8 +10,12 @@ class LoggerProvider implements ILoggerProvider {
     this.logger = console
   }
 
-  log({ type, message }: ILogProps) {
+  log({ type, message, ...rest }: ILogProps) {
     this.logger[type](message)
+
+    if (Object.values(rest).length) {
+      this.logger[type](rest)
+    }
   }
 }
 

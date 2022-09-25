@@ -281,15 +281,10 @@ class Bot {
 
     this.client.on('interactionCreate', async (interaction) => {
       try {
-        const interactionInJSON = interaction.toJSON() as {
-          [key: string]: string | number | bigint | object | boolean
-        }
-
-        const stringifyInteraction = new StringifyInteraction(interactionInJSON)
-
         loggerProvider.log({
+          ...interaction,
+          message: 'Interaction received.',
           type: 'info',
-          message: `Interaction ${stringifyInteraction.stringify()} received.`,
         })
 
         const getNameInteraction = new GetInteractionInfo(interaction)
