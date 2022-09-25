@@ -255,11 +255,13 @@ class PlayInteraction implements IPlayInteraction {
 
     const musics = await youtube.getPlaylist(urlOrTerm as string)
 
-    loggerProvider.log({
-      ...musics,
-      message: 'Playlist found',
-      type: 'info',
-    })
+    if (!musics?.videos) {
+      loggerProvider.log({
+        type: 'warn',
+        message: 'Playlist not found',
+        ...musics.toJSON(),
+      })
+    }
 
     this.musicUrl = musics.videos[0].url
 

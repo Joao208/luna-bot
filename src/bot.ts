@@ -281,9 +281,9 @@ class Bot {
     this.client.on('interactionCreate', async (interaction) => {
       try {
         loggerProvider.log({
-          ...interaction,
-          message: 'Interaction received.',
           type: 'info',
+          message: 'Interaction received.',
+          interaction: interaction.toJSON(),
         })
 
         const getNameInteraction = new GetInteractionInfo(interaction)
