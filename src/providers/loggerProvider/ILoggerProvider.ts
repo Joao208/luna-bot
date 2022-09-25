@@ -1,6 +1,6 @@
 export interface ILogProps {
   type: 'log' | 'info' | 'warn' | 'error'
-  message: string | Error | unknown | never
+  message: string
 }
 
 export interface ILoggerProvider {
