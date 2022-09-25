@@ -74,7 +74,7 @@ class PlayInteraction implements IPlayInteraction {
     const musicInfo = await getBasicInfo(this.musicUrl as string)
 
     if (!voiceChannelId) {
-      await this.handleUserWithoutVoiceChannel({
+      return this.handleUserWithoutVoiceChannel({
         interaction,
         voiceConnectionObject,
         musicInfo,
@@ -144,6 +144,70 @@ class PlayInteraction implements IPlayInteraction {
           message: error.message,
         })
       )
+
+    player.on(AudioPlayerStatus.Idle, () => {
+      this.musicQueue.removeSong(serverId)
+
+      if (!this.musicQueue.getQueue(serverId).length) return
+
+      const nextSong = this.musicQueue.queue[serverId][0]
+
+      player.play(nextSong)
+    })
+
+    this.players.setPlayer(serverId, player)
+
+    this.addPlaylistToQueue(serverId)
+  }
+
+  async executeWithoutInteraction({
+    musicUrl,
+    serverId,
+    voiceChannelId,
+    voiceAdapterCreator,
+  }: {
+    musicUrl: string
+    serverId: string
+    voiceChannelId: string
+    voiceAdapterCreator: InternalDiscordGatewayAdapterCreator
+  }) {
+    await this.handlePlaylist(musicUrl)
+
+    const voiceConnectionObject = {} as IVoiceConnectionObject
+
+    voiceConnectionObject.voiceChannelId = voiceChannelId
+    voiceConnectionObject.guildId = serverId
+    voiceConnectionObject.voiceAdapterCreator = voiceAdapterCreator
+
+    const musicInfo = await getBasicInfo(this.musicUrl as string)
+
+    await this.getChannel(voiceConnectionObject)
+
+    const musicStream = await ytdl(this.musicUrl as string, {
+      highWaterMark: 1 << 25,
+    })
+
+    const audioResource = createAudioResource(musicStream, {
+      metadata: {
+        title: musicInfo.videoDetails.title,
+        thumbnail: musicInfo.videoDetails.thumbnails[0].url,
+      },
+      inputType: StreamType.Opus,
+    })
+
+    if (this.musicQueue.isCurrentPlaying(serverId)) {
+      this.musicQueue.addSong(serverId, audioResource)
+
+      return
+    }
+
+    this.musicQueue.addSong(serverId, audioResource)
+
+    const player = createAudioPlayer()
+
+    this.channel?.subscribe(player)
+
+    player.play(audioResource)
 
     player.on(AudioPlayerStatus.Idle, () => {
       this.musicQueue.removeSong(serverId)

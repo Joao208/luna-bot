@@ -12,6 +12,10 @@ export class GetInteractionInfo {
       return this.interaction.customId
     }
 
+    if (this.interaction.isButton()) {
+      return this.interaction.customId.toString().split('&')[0]
+    }
+
     return null
   }
 
@@ -22,6 +26,10 @@ export class GetInteractionInfo {
 
     if (this.interaction.isSelectMenu()) {
       return 'select'
+    }
+
+    if (this.interaction.isButton()) {
+      return 'button'
     }
 
     return null

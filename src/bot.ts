@@ -1,7 +1,10 @@
 import 'dotenv/config'
 import { REST } from '@discordjs/rest'
 import {
+  ActionRowBuilder,
   ActivityType,
+  ButtonBuilder,
+  ButtonStyle,
   ChannelType,
   Client,
   CommandInteraction,
@@ -16,10 +19,16 @@ import loggerProvider from '@src/providers/loggerProvider'
 import { OwnerRepository, ServerRepository } from '@src/repositories'
 import { GetInteractionInfo } from '@src/helpers/getInteractionInfo'
 import { IInteraction } from '@src/types/IInteraction'
+import { StringifyInteraction } from '@src/helpers/stringifyInteraction'
+import {
+  BuildMessageListener,
+  RegexObject,
+} from '@src/helpers/buildMessageListener'
 
 class Bot {
   rest: REST
   commands: CommandInteraction[]
+  messages: BuildMessageListener['message'][]
   client: Client
   interactions: {
     [key: string]: { [key: string]: IInteraction }
@@ -41,14 +50,18 @@ class Bot {
     })
 
     this.commands = []
+    this.messages = []
     this.interactions = {
       command: {},
       select: {},
+      button: {},
     }
 
     this.getCommands()
     this.getCommandInteractions()
     this.getSelectInteraction()
+    this.getCommandButtons()
+    this.getMessages()
   }
 
   private getSelectInteraction() {
@@ -91,6 +104,26 @@ class Bot {
     })
   }
 
+  private getCommandButtons() {
+    glob('src/interactionButtons/**/*.interaction.*', (_err, files) => {
+      files.forEach((filePath) => {
+        const interactionName = filePath.split('/')[2].split('.')[0]
+
+        const interaction = require(`../${filePath}`).default
+
+        if (!this.interactions) this.interactions = {}
+
+        this.interactions['button'][interactionName] =
+          interaction as unknown as IInteraction
+
+        loggerProvider.log({
+          type: 'info',
+          message: `Button ${interactionName} loaded.`,
+        })
+      })
+    })
+  }
+
   private getCommands() {
     glob('src/commands/**/*.command.*', (_err, files) => {
       files.forEach((filePath) => {
@@ -105,6 +138,23 @@ class Bot {
       })
 
       this.setCommands()
+    })
+  }
+
+  private getMessages() {
+    glob('src/messages/**/*.message.*', (_err, files) => {
+      files.forEach((filePath) => {
+        const { message } = require(`../${filePath}`).default
+
+        this.messages.push(
+          message as unknown as BuildMessageListener['message']
+        )
+
+        loggerProvider.log({
+          type: 'info',
+          message: `Message ${message.name} loaded.`,
+        })
+      })
     })
   }
 
@@ -131,6 +181,44 @@ class Bot {
       loggerProvider.log({
         type: 'error',
         message: `Error in client ${error}`,
+      })
+    })
+
+    this.client.on('messageCreate', async (message) => {
+      const content = message.content.toString()
+
+      this.messages.forEach((messageListener) => {
+        const found = messageListener.regex.find((regex) => {
+          if (regex instanceof RegExp) {
+            return !!regex.exec(content)?.[0]
+          }
+
+          if (regex instanceof RegexObject) {
+            return !!regex.regex.exec(content)?.[0]
+          }
+
+          return false
+        }) as unknown as RegexObject | RegExp
+
+        if (found instanceof RegExp) {
+          found.exec(content)
+
+          const match = found.exec(content)?.[0]
+
+          if (match) {
+            messageListener.callback(message, found.source, match)
+          }
+        }
+
+        if (found instanceof RegexObject) {
+          found.regex.exec(content)
+
+          const match = found.regex.exec(content)?.[0]
+
+          if (match) {
+            messageListener.callback(message, found.name, match)
+          }
+        }
       })
     })
 
@@ -193,13 +281,24 @@ class Bot {
 
     this.client.on('interactionCreate', async (interaction) => {
       try {
+        const interactionInJSON = interaction.toJSON() as {
+          [key: string]: string | number | bigint | object | boolean
+        }
+
+        const stringifyInteraction = new StringifyInteraction(interactionInJSON)
+
+        loggerProvider.log({
+          type: 'info',
+          message: `Interaction ${stringifyInteraction.stringify()} received.`,
+        })
+
         const getNameInteraction = new GetInteractionInfo(interaction)
 
         const name = getNameInteraction.getNameInteraction()
         const type = getNameInteraction.getTypeInteraction()
 
         if (!name || !type) {
-          interaction.channel?.send({ content: 'Invalid interaction' })
+          await interaction.channel?.send({ content: 'Invalid interaction' })
 
           return
         }
@@ -210,18 +309,36 @@ class Bot {
 
         await currentInteraction.execute(interaction)
       } catch (error) {
-        if (error instanceof Error) {
-          loggerProvider.log({
-            message: error.message,
-            type: 'error',
-          })
+        const errorMessage = `Error in interaction ${
+          interaction.id
+        } with message: ${(error as Error).message}`
+
+        loggerProvider.log({
+          message: errorMessage,
+          type: 'error',
+        })
+
+        const urlToReport = `https://github.com/luna-bot-br/luna-bot/issues/new?title=${errorMessage}`
+
+        const row = new ActionRowBuilder().addComponents(
+          new ButtonBuilder()
+            .setLabel('Report the bug!')
+            .setURL(encodeURI(urlToReport))
+            .setStyle(ButtonStyle.Link)
+        )
+
+        const errorMessageBody = {
+          content: 'Something went wrong. Report to the developers.',
+          components: [row],
+          ephemeral: true,
         }
 
         if (interaction.isRepliable() && !interaction.replied) {
-          interaction.reply({
-            content: 'Something went wrong.',
-            ephemeral: true,
-          })
+          // @ts-ignore
+          await interaction.reply(errorMessageBody)
+        } else if (interaction.isRepliable() && interaction.replied) {
+          // @ts-ignore
+          await interaction.editReply(errorMessageBody)
         }
       }
     })
