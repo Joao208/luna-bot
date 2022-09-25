@@ -15,10 +15,6 @@ class LoggerProvider implements ILoggerProvider {
 
   log({ type, message, ...rest }: ILogProps) {
     this.logger[type]({ level: type, message, ...rest })
-
-    if (Object.values(rest).length) {
-      this.logger[type]({ level: type, message, ...rest })
-    }
   }
 }
 

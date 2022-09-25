@@ -19,7 +19,6 @@ import loggerProvider from '@src/providers/loggerProvider'
 import { OwnerRepository, ServerRepository } from '@src/repositories'
 import { GetInteractionInfo } from '@src/helpers/getInteractionInfo'
 import { IInteraction } from '@src/types/IInteraction'
-import { StringifyInteraction } from '@src/helpers/stringifyInteraction'
 import {
   BuildMessageListener,
   RegexObject,
