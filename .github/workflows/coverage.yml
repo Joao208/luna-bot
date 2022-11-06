@@ -26,7 +26,7 @@ jobs:
       - name: Run the tests
         run: yarn test:coverage
 
-      - uses: codecov/codecov-action@v2
+      - uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: unittests
