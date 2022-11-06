@@ -44,8 +44,8 @@ sidecars:
 environments:
   production:
     count: 1
-    cpu: 1024
-    memory: 2048
+    cpu: 256
+    memory: 512
     variable:
       NODE_ENV: production
     secrets:
