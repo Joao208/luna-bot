@@ -1,5 +1,8 @@
-import { joinVoiceChannel, VoiceConnection } from '@discordjs/voice'
-import { InternalDiscordGatewayAdapterCreator } from 'discord.js'
+import {
+  DiscordGatewayAdapterCreator,
+  joinVoiceChannel,
+  VoiceConnection,
+} from '@discordjs/voice'
 import { IVoiceConnectionObject } from 'src/interactionCommands/play.interaction'
 
 export interface IChannels {
@@ -25,7 +28,7 @@ class Channels implements IChannels {
       channelId: interaction.voiceChannelId as string,
       guildId: interaction.guildId as string,
       adapterCreator:
-        interaction.voiceAdapterCreator as InternalDiscordGatewayAdapterCreator,
+        interaction.voiceAdapterCreator as DiscordGatewayAdapterCreator,
     })
 
     return this.channels[interaction.guildId as string]
