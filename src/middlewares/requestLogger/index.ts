@@ -9,11 +9,10 @@ export class RequestLogger {
 
     loggerProvider.log({
       type: 'info',
-      message: `Request received: ${method} ${url}, body: ${JSON.stringify({
-        body,
-        query,
-        params,
-      })}`,
+      message: `Request received: ${method} ${url}, body:`,
+      body,
+      query,
+      params,
     })
 
     return next()

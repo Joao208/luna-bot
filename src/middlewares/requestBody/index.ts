@@ -10,9 +10,8 @@ export class RequestBody {
       if (error.error) {
         loggerProvider.log({
           type: 'error',
-          message: `Request body validation error: ${JSON.stringify(
-            error.error?.details
-          )}`,
+          message: `Request body validation error:`,
+          error: error.error?.details,
         })
 
         return res.status(400).send('Invalid Request')
