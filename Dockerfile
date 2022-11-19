@@ -6,13 +6,13 @@ COPY package*.json ./
 
 COPY tsconfig*.json ./
 
-RUN npm i
+RUN yarn
 
 COPY . ./
 
 RUN npx prisma generate
 
-RUN npm run build
+RUN yarn build
 
 FROM node:16-bullseye as ts-remover
 
@@ -25,7 +25,7 @@ COPY --from=ts-compiler /usr/app/dist ./
 # Run when test local
 # COPY --from=ts-compiler /usr/app/.env ./
 
-RUN npm install --omit=dev
+RUN yarn install --prod
 
 RUN npx prisma generate
 
@@ -45,4 +45,4 @@ COPY --from=ts-remover /usr/app ./
 
 EXPOSE 5003
 
-CMD ["npm", "run" ,"start"]
+CMD ["yarn", ,"start"]
