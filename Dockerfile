@@ -45,4 +45,4 @@ COPY --from=ts-remover /usr/app ./
 
 EXPOSE 5003
 
-CMD ["yarn", ,"start"]
+CMD ["yarn", "start"]
