@@ -41,9 +41,7 @@ class MusicQueue implements IMusicQueue {
   }
 
   clearQueue(serverId: string) {
-    if (!this.queue[serverId]) return
-
-    this.queue[serverId] = []
+    delete this.queue[serverId]
   }
 }
 
