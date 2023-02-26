@@ -1,4 +1,4 @@
-FROM node:16-bullseye as ts-compiler
+FROM node:lts as ts-compiler
 
 WORKDIR /usr/app
 
@@ -14,7 +14,7 @@ RUN npx prisma generate
 
 RUN yarn build
 
-FROM node:16-bullseye as ts-remover
+FROM node:lts as ts-remover
 
 WORKDIR /usr/app
 
@@ -29,7 +29,7 @@ RUN yarn install --prod
 
 RUN npx prisma generate
 
-FROM node:16-bullseye
+FROM node:lts
 
 RUN apt update \
     && apt install -y \
